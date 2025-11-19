@@ -27,30 +27,30 @@ functions:
           cors: true
 
 
-  # GET /orders/user/{userId} - Listar pedidos por usuario (usa GSI OrdersByCustomer)
+  # GET /orders/customer/{customer_id} - Listar pedidos por usuario (usa GSI OrdersByCustomer)
   OrderByCustomer:
     handler: OrderByCustomer.lambda_handler
     events:
       - http:
-          path: /orders/user/{userId}
+          path: /orders/customer/{customer_id}
           method: get
           cors: true
 
-  # PATCH /orders/{orderId}/status - Actualizar estado
+  # PATCH /orders/{order_id}/status - Actualizar estado
   UpdateOrderStatus:
     handler: UpdateOrderStatus.lambda_handler
     events:
       - http:
-          path: /orders/{orderId}/status
+          path: /orders/{order_id}/status
           method: patch
           cors: true
 
-  # PATCH /orders/{orderId}/cancel - Cancelar pedido
+  # PATCH /orders/{order_id}/cancel - Cancelar pedido
   CancelOrder:
     handler: CancelOrder.lambda_handler
     events:
       - http:
-          path: /orders/{orderId}/cancel
+          path: /orders/{order_id}/cancel
           method: patch
           cors: true
 
