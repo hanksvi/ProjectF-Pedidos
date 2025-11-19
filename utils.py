@@ -1,5 +1,7 @@
 import json
-
+import boto3
+from datetime import datetime, timezone
+from decimal import Decimal
 def response(status, body):
     body = clean_decimals(body)
     return {
@@ -25,3 +27,25 @@ def clean_decimals(obj):
         return int(obj) if obj % 1 == 0 else float(obj)
     return obj
 
+
+events_client = boto3.client("events")
+
+def publish_order_event(detail_type: str, detail: dict, source: str = "orders.service"):
+    
+    #Envía un evento a EventBridge
+    detail = dict(detail)  # copiar por seguridad
+    detail["event_time"] = datetime.now(timezone.utc).isoformat()
+
+    # limpiar Decimals para que json.dumps no falle
+    detail = clean_decimals(detail)
+
+    events_client.put_events(
+        Entries=[
+            {
+                "Source": source,
+                "DetailType": detail_type,
+                "Detail": json.dumps(detail),
+                "EventBusName": "default",  
+            }
+        ]
+    )
