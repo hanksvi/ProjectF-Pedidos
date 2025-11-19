@@ -1,6 +1,7 @@
 import json
 
 def response(status, body):
+    body = clean_decimals(body)
     return {
         "statusCode": status,
         "headers": {
@@ -20,7 +21,7 @@ def clean_decimals(obj):
     if isinstance(obj, dict):
         return {k: clean_decimals(v) for k, v in obj.items()}
     if isinstance(obj, Decimal):
-        if obj % 1 == 0:
-            return int(obj)
-        return float(obj)
+        # si es número entero, devuelve int; si no, float
+        return int(obj) if obj % 1 == 0 else float(obj)
     return obj
+
