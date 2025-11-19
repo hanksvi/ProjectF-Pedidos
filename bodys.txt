@@ -1,0 +1,64 @@
+  POST - https://i6m75lvg31.execute-api.us-east-1.amazonaws.com/dev/orders
+
+{
+  "customer_id": "user123",
+  "items": [
+    {
+      "product_id": "POLLO_ARROZ",
+      "quantity": 2,
+      "price": 15.50
+    },
+    {
+      "product_id": "ROLLO_PRIMAVERA",
+      "quantity": 3,
+      "price": 4.00
+    }
+  ]
+}
+
+-------------------------------------------------------------------------------------------------------
+
+
+
+  GET - https://i6m75lvg31.execute-api.us-east-1.amazonaws.com/dev/orders/customer/{customer_id}
+- reemplazar "{customer_id}" por id del customer
+
+ej: https://i6m75lvg31.execute-api.us-east-1.amazonaws.com/dev/orders/customer/user123
+
+
+-------------------------------------------------------------------------------------------------------
+
+
+
+  PATCH - https://i6m75lvg31.execute-api.us-east-1.amazonaws.com/dev/orders/{order_id}/status
+- reemplazar "{order_id}" por id del pedido
+{
+  "status": "preparing",
+  "updated_by": "admin123"
+}
+
+ej: https://i6m75lvg31.execute-api.us-east-1.amazonaws.com/dev/orders/045eb04ff34b4d2ab13f66abf33dd028/status
+
+
+-------------------------------------------------------------------------------------------------------
+
+
+  PATCH - https://i6m75lvg31.execute-api.us-east-1.amazonaws.com/dev/orders/{order_id}/cancel
+- reemplazar "{order_id}" por id del pedido
+{
+  "cancelled_by": "user123",
+  "reason": "Me confundí al pedir"
+}
+
+ej; https://i6m75lvg31.execute-api.us-east-1.amazonaws.com/dev/orders/640cceca473943569926b85ee800c791/cancel
+
+
+-------------------------------------------------------------------------------------------------------
+
+
+  GET - https://i6m75lvg31.execute-api.us-east-1.amazonaws.com/dev/orders
+
+?status="{etapa}" después de orders
+
+
+
