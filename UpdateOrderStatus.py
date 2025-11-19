@@ -2,6 +2,7 @@ import os, json
 import boto3
 from datetime import datetime, timezone
 from utils import response
+from utils import publish_order_event
 
 ddb = boto3.resource('dynamodb')
 orders_table = ddb.Table(os.environ.get("ORDERS_TABLE", "Orders"))
@@ -84,6 +85,19 @@ def lambda_handler(event, context):
         )
 
         updated_order = update_result.get("Attributes", {})
+
+        try:
+            publish_order_event(
+                detail_type="OrderStatusUpdated",
+                detail={
+                    "order_id": order_id,
+                    "customer_id": updated_order.get("customer_id"),
+                    "old_status": current_status,
+                    "new_status": new_status
+                }
+            )
+        except Exception as e:
+            print(f"Error publishing OrderStatusUpdated event: {str(e)}")
 
         return response(200, {
             "success": True,
