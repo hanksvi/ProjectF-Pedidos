@@ -1,0 +1,108 @@
+org: ${env:ORG_NAME}
+service: ${env:SERVICE_NAME}
+
+plugins:
+  - serverless-dotenv-plugin
+
+provider:
+  name: aws
+  runtime: python3.13
+  memorySize: 256
+  stage: dev
+  region: us-east-1
+  timeout: 20
+  iam:
+    role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/${env:ROLE_NAME}
+  environment:
+    ORDERS_TABLE: ${env:ORDERS_TABLE}
+
+functions:
+  # POST /orders - Crear pedido
+  CreateOrder:
+    handler: CreateOrder.lambda_handler
+    events:
+      - http:
+          path: /orders
+          method: post
+          cors: true
+
+
+  # GET /orders/user/{userId} - Listar pedidos por usuario (usa GSI OrdersByCustomer)
+  OrderByCustomer:
+    handler: OrderByCustomer.lambda_handler
+    events:
+      - http:
+          path: /orders/user/{userId}
+          method: get
+          cors: true
+
+  # PATCH /orders/{orderId}/status - Actualizar estado
+  UpdateOrderStatus:
+    handler: UpdateOrderStatus.lambda_handler
+    events:
+      - http:
+          path: /orders/{orderId}/status
+          method: patch
+          cors: true
+
+  # PATCH /orders/{orderId}/cancel - Cancelar pedido
+  CancelOrder:
+    handler: CancelOrder.lambda_handler
+    events:
+      - http:
+          path: /orders/{orderId}/cancel
+          method: patch
+          cors: true
+
+  # GET /orders?status=X - Listar por estado (usa GSI OrdersByStatus)
+  OrdersByStatus:
+    handler: OrdersByStatus.lambda_handler
+    events:
+      - http:
+          path: /orders
+          method: get
+          cors: true
+
+resources:
+  Resources:
+
+    TablaPedidos:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.ORDERS_TABLE}
+        BillingMode: PAY_PER_REQUEST
+
+        AttributeDefinitions:
+          - AttributeName: order_id
+            AttributeType: S
+          - AttributeName: customer_id
+            AttributeType: S
+          - AttributeName: status
+            AttributeType: S
+          - AttributeName: created_at
+            AttributeType: S
+
+        KeySchema:
+          - AttributeName: order_id
+            KeyType: HASH
+
+        GlobalSecondaryIndexes:
+          # GSI por usuario
+          - IndexName: OrdersByCustomer
+            KeySchema:
+              - AttributeName: customer_id
+                KeyType: HASH
+              - AttributeName: created_at
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+          # GSI por estado
+          - IndexName: OrdersByStatus
+            KeySchema:
+              - AttributeName: status
+                KeyType: HASH
+              - AttributeName: created_at
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
